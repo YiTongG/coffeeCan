@@ -1,86 +1,69 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import prisma from "../lib/prisma.js";
+import jwt from "jsonwebtoken";
+export const register = async(req,res) =>{
+  const {username,email,password} = req.body;
+  //hash password to store
+  const hashedPassword = await bcrypt.hash(password,10);
+  console.log(hashedPassword);
+  //prisma create using json 
+  const newUser = await prisma.user.create({
+    data:{
+      username,
+      email,
+      password: hashedPassword,
+    },
+  })
+  //hash the password
 
-export const register = async (req, res) => {
-  const { username, email, password } = req.body;
+  console.log(req.body);
+  res.status(201).json({messate:"User create successfully"});
+}
 
-  try {
-    // HASH THE PASSWORD
+export const login = async(req,res) =>{
+  const{username,password} = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+try{ 
+  //1.check username
+  const user = await prisma.user.findUnique({
+    where:{username}
+  })
+  if(!user) return res.status(401).json({message:"Invaild credentials"});
+  //2.check password
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    console.log(hashedPassword);
+  if (!isPasswordValid)
+    return res.status(400).json({ message: "Invalid Credentials!" });
 
-    // CREATE A NEW USER AND SAVE TO DB
-    const newUser = await prisma.user.create({
-      data: {
-        username,
-        email,
-        password: hashedPassword,
-      },
-    });
 
-    console.log(newUser);
+  const age = 1000 * 60 * 60 * 24 * 7; //one week
 
-    res.status(201).json({ message: "User created successfully" });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Failed to create user!" });
-  }
-};
+  const token = jwt.sign(//header + payload + key(self+identify)
+    {
+      id: user.id,
+      isAdmin: false,
+    },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: age }
+  );
 
-export const login = async (req, res) => {
-  const { username, password } = req.body;
+  const { password: userPassword, ...userInfo } = user;
 
-  try {
-    // CHECK IF THE USER EXISTS
-
-    const user = await prisma.user.findUnique({
-      where: { username },
-    });
-
-    if (!user) return res.status(400).json({ message: "Invalid Credentials!" });
-
-    // CHECK IF THE PASSWORD IS CORRECT
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid)
-      return res.status(400).json({ message: "Invalid Credentials!" });
-
-    // GENERATE COOKIE TOKEN AND SEND TO THE USER
-
-    // res.setHeader("Set-Cookie", "test=" + "myValue").json("success")
-    //max age expire
-    //check the reivew by user or not 
-    const age = 1000 * 60 * 60 * 24 * 7;
-
-    const token = jwt.sign(
-      {
-        id: user.id,
-        isAdmin: false,
-      },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: age }
-    );
-
-    const { password: userPassword, ...userInfo } = user;
-    
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        // secure:true,
-        maxAge: age,
-      })
-      .status(200)
-      .json(userInfo);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Failed to login!" });
-  }
+  res
+  .cookie("token", token, { //save information identify user, auto login=>session hash crypt =>jwt client and server identify
+    httpOnly: true,
+    // secure:true,
+    maxAge: age,
+  })
+    .status(200)
+    .json(userInfo);
+    console.log(userInfo)
+} catch (err) {
+  console.log(err);
+  res.status(500).json({ message: "Failed to login!" });
+}
 };
 
 export const logout = (req, res) => {
-  res.clearCookie("token").status(200).json({ message: "Logout Successful" });
+res.clearCookie("token").status(200).json({ message: "Logout Successful" });
 };

@@ -5,7 +5,9 @@ import express from "express";
 const router = express.Router();
 
 
-//router.post("/", addPost);
+router.get("/test",()=>{
+    console.log("router works");
+});
 
 
 export default router;
