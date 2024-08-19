@@ -20,58 +20,60 @@ model User {
   password  String
   avatar    String?
   createdAt DateTime @default(now())
-  reviews   Review[]
+  posts      Post[]
+  savedPosts SavedPost[]
 }
 enum Type {
   localRoaster
   packagedBean
 }
-
-model CoffeeBean {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  description   String
-  origin        String
-  roastLevel    String
-  type          Type
-  localRoaster  LocalRoaster?  @relation(fields: [localRoasterId], references: [id])
-  localRoasterId String? @db.ObjectId
-  packagedBean  PackagedBean?  @relation(fields: [packagedBeanId], references: [id])
-  packagedBeanId String? @db.ObjectId
-  reviews       Review[]
+enum Roasting { 
+  light
+  cinnamon
+  medium
+  high
+  city
+  fullCity
+  french
+  italian
 }
 
-model LocalRoaster {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  address     String
-  coffeeBeans CoffeeBean[] 
-   }
-
-model PackagedBean {
-  id         String     @id @default(auto()) @map("_id") @db.ObjectId
-  brand      String
-  store      Store      @relation(fields: [storeId], references: [id])
-  storeId    String     @db.ObjectId
-  coffeeBeans CoffeeBean[]
+model Post {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  price      Int 
+  weight     Int 
+  images     String[]
+  address    String
+  city       String
+  latitude   String
+  longitude  String
+  from       String
+  type       Type
+  roasting   Roasting
+  createdAt  DateTime    @default(now())
+  user       User        @relation(fields: [userId], references: [id])
+  userId     String      @db.ObjectId
+  postDetail PostDetail?
+  savedPosts SavedPost[]
+}
+model PostDetail {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  desc       String
+  unitPrice  Int
+  post       Post    @relation(fields: [postId], references: [id])
+  postId     String  @unique @db.ObjectId
 }
 
-model Store {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  address       String
-  packagedBeans PackagedBean[] 
+model SavedPost {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    String   @unique @db.ObjectId
+  postId    String   @unique @db.ObjectId
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
 }
 
-model Review {
-  id            String     @id @default(auto()) @map("_id") @db.ObjectId
-  rating        Int
-  comment       String
-  coffeeMachine String?
-  grinder       String?
-  user          User       @relation(fields: [userId], references: [id])
-  userId        String     @db.ObjectId
-  coffeeBean    CoffeeBean @relation(fields: [coffeeBeanId], references: [id])
-  coffeeBeanId  String     @db.ObjectId
-  createdAt     DateTime   @default(now())
-}
+

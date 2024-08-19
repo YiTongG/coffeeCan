@@ -14,10 +14,12 @@ export const listPageLoader = async ({ request, params }) => {
 };
 
 export const profilePageLoader = async () => {
-  const postPromise = apiRequest("/users/profilePosts");
-  const chatPromise = apiRequest("/chats");
+  const postPromise = apiRequest.get("/users/profilePosts");
+  const savedPostsPromise = apiRequest.get("/users/savedPosts");
   return defer({
     postResponse: postPromise,
-    chatResponse: chatPromise,
+
+    savedPostsResponse: savedPostsPromise,
   });
 };
+

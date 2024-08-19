@@ -154,3 +154,36 @@ export const getNotificationNumber = async (req, res) => {
     res.status(500).json({ message: "Failed to get profile posts!" });
   }
 };
+export const getSavedPosts = async (req, res) => {
+  try {
+    const savedPosts = await prisma.savedPost.findMany({
+      where: {
+        userId: req.userId, 
+      },
+      include: {
+        post: true, // 假设 savedPost 关联了 post 数据
+      },
+    });
+    res.status(200).json(savedPosts);
+  } catch (err) {
+    console.error("Error fetching saved posts:", err);
+    res.status(500).json({ message: "Failed to retrieve saved posts" });
+  }
+};
+export const getMyList = async (req, res) => {
+  try {
+    const userId = req.userId;  // 假设 verifyToken 中间件将 userId 添加到 req 对象上
+    const myList = await prisma.post.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        postDetail: true,  // 如果需要包括帖子详情
+      },
+    });
+    res.status(200).json(myList);
+  } catch (err) {
+    console.error("Error fetching user's posts (myList):", err);
+    res.status(500).json({ message: "Failed to retrieve user's posts" });
+  }
+};

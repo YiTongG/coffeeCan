@@ -6,11 +6,10 @@ function Filter() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState({
     type: searchParams.get("type") || "",
+    roasting: searchParams.get("roasting") || "",
     city: searchParams.get("city") || "",
-    property: searchParams.get("property") || "",
     minPrice: searchParams.get("minPrice") || "",
     maxPrice: searchParams.get("maxPrice") || "",
-    bedroom: searchParams.get("bedroom") || "",
   });
 
   const handleChange = (e) => {
@@ -27,16 +26,16 @@ function Filter() {
   return (
     <div className="filter">
       <h1>
-        Search results for <b>{searchParams.get("city")}</b>
+        Search results for <b>{searchParams.get("city") || "all city"}</b>
       </h1>
       <div className="top">
         <div className="item">
-          <label htmlFor="city">Location</label>
+          <label htmlFor="city">city</label>
           <input
             type="text"
             id="city"
             name="city"
-            placeholder="City Location"
+            placeholder="city located"
             onChange={handleChange}
             defaultValue={query.city}
           />
@@ -52,23 +51,27 @@ function Filter() {
             defaultValue={query.type}
           >
             <option value="">any</option>
-            <option value="buy">Buy</option>
-            <option value="rent">Rent</option>
+            <option value="localRoaster">Local Roaster</option>
+            <option value="packagedBean">Packaged Bean</option>
           </select>
         </div>
         <div className="item">
-          <label htmlFor="property">Property</label>
+          <label htmlFor="roasting">Roasting Level</label>
           <select
-            name="property"
-            id="property"
+            name="roasting"
+            id="roasting"
             onChange={handleChange}
-            defaultValue={query.property}
+            defaultValue={query.roasting}
           >
             <option value="">any</option>
-            <option value="apartment">Apartment</option>
-            <option value="house">House</option>
-            <option value="condo">Condo</option>
-            <option value="land">Land</option>
+            <option value="light">Light</option>
+            <option value="cinnamon">Cinnamon</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="city">City</option>
+            <option value="fullCity">Full City</option>
+            <option value="french">French</option>
+            <option value="italian">Italian</option>
           </select>
         </div>
         <div className="item">
@@ -85,7 +88,7 @@ function Filter() {
         <div className="item">
           <label htmlFor="maxPrice">Max Price</label>
           <input
-            type="text"
+            type="number"
             id="maxPrice"
             name="maxPrice"
             placeholder="any"
@@ -93,19 +96,8 @@ function Filter() {
             defaultValue={query.maxPrice}
           />
         </div>
-        <div className="item">
-          <label htmlFor="bedroom">Bedroom</label>
-          <input
-            type="text"
-            id="bedroom"
-            name="bedroom"
-            placeholder="any"
-            onChange={handleChange}
-            defaultValue={query.bedroom}
-          />
-        </div>
         <button onClick={handleFilter}>
-          <img src="/search.png" alt="" />
+          <img src="/search.png" alt="Search" />
         </button>
       </div>
     </div>

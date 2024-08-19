@@ -1,14 +1,19 @@
 import "./login.scss";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import {useState} from "react";
+import { useState, useContext } from "react";
+// Import AuthContext if you are using context for user management
+import { AuthContext } from "../../context/AuthContext"; 
+import apiRequest from "../../lib/apiRequest";
+
 function Login() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  //const {updateUser} = useContext(AuthContext)
-
   const navigate = useNavigate();
+
+  // Uncomment this line if you are using AuthContext
+  const { updateUser } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,20 +25,30 @@ function Login() {
     const password = formData.get("password");
 
     try {
-      const res = await axios.post("http://localhost:8800/api/auth/login", {
+      const res = await apiRequest.post("/auth/login", {
         username,
         password,
       });
 
-      updateUser(res.data)
-      console.log(res.data)
-      navigate("/");
+      if (res.data) {
+        // Save user data in localStorage
+        localStorage.setItem("currentUser", JSON.stringify(res.data));
+
+        // Update context if you are using AuthContext
+        if (updateUser) {
+          updateUser(res.data);
+        }
+
+        console.log(res.data);
+        navigate("/");
+      }
     } catch (err) {
-      setError(err.response.data.message);
+      setError(err.response?.data?.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="login">
       <div className="formContainer">
@@ -59,7 +74,7 @@ function Login() {
         </form>
       </div>
       <div className="imgContainer">
-        <img src="/bg.png" alt="" />
+        <img src="/bg.png" alt="Background" />
       </div>
     </div>
   );
