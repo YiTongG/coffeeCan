@@ -79,7 +79,7 @@ function NewPostPage() {
       weightInOunces = weight * 35.274;
     }
 
-    if (weightInOunces > 0) {
+    if (weightInOunces > 0) { 
       setUnitPrice((price / weightInOunces).toFixed(2));
     } else {
       setUnitPrice(0);

@@ -19,11 +19,11 @@ function Card({ item }) {
         <div className="bottom">
           <div className="features">
             <div className="feature">
-              <img src="/bed.png" alt="" />
+              <img src="/type.png" alt="" />
               <span>{item.type} </span>
             </div>
             <div className="feature">
-              <img src="/bath.png" alt="" />
+              <img src="/roasting.png" alt="" />
               <span>{item.roasting} </span>
             </div>
           </div>

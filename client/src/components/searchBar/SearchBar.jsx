@@ -17,10 +17,8 @@ const roastingLevels = [
 function SearchBar() {
   const [query, setQuery] = useState({
     type: "localRoaster",
-    city: "",       // 改为 city
+    city: "",
     roasting: "",
-    minPrice: 0,
-    maxPrice: 0,
   });
 
   const switchType = (val) => {
@@ -47,40 +45,27 @@ function SearchBar() {
       <form>
         <input
           type="text"
-          name="city"           // 改为 city
+          name="city"
           placeholder="City"
           onChange={handleChange}
         />
         <select
           name="roasting"
           onChange={handleChange}
+
           defaultValue=""
         >
-          <option value="" disabled>Select Roasting Level</option>
+            <option value="" disabled>
+              Roasting
+            </option>
           {roastingLevels.map((level) => (
             <option key={level} value={level}>
               {level.charAt(0).toUpperCase() + level.slice(1)}
             </option>
           ))}
         </select>
-        <input
-          type="number"
-          name="minPrice"
-          min={0}
-          max={10000}
-          placeholder="Min Price"
-          onChange={handleChange}
-        />
-        <input
-          type="number"
-          name="maxPrice"
-          min={0}
-          max={10000}
-          placeholder="Max Price"
-          onChange={handleChange}
-        />
         <Link
-          to={`/list?type=${query.type}&city=${query.city}&roasting=${query.roasting}&minPrice=${query.minPrice}&maxPrice=${query.maxPrice}`}
+          to={`/list?type=${query.type}&city=${query.city}&roasting=${query.roasting}`}
         >
           <button type="button">
             <img src="/search.png" alt="Search" />

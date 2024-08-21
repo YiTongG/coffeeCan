@@ -1,9 +1,8 @@
 @import "../../responsive.scss";
 $coffee-brown: #6f4e37;
+
 .searchBar {
   .type {
-
-
     button {
       padding: 16px 36px;
       border: 1px solid #999;
@@ -40,33 +39,21 @@ $coffee-brown: #6f4e37;
       border: none;
     }
 
-    input {
+    input, select {
       border: none;
       padding: 0px 10px;
       width: 200px;
 
       @include lg {
         padding: 0px 5px;
-
-        &:nth-child(2),
-        &:nth-child(3) {
-          width: 140px;
-        }
       }
+
       @include md {
         width: 200px;
-        &:nth-child(2),
-        &:nth-child(3) {
-          width: 200px;
-        }
       }
 
-      @include sm{
+      @include sm {
         width: auto;
-        &:nth-child(2),
-        &:nth-child(3) {
-          width: auto;
-        }
         padding: 20px;
         border: 1px solid #999;
       }
@@ -76,15 +63,19 @@ $coffee-brown: #6f4e37;
       border: none;
       cursor: pointer;
       background-color: $coffee-brown;
-      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
 
-      @include sm{
+      @include sm {
         padding: 10px;
       }
 
       img {
         width: 24px;
         height: 24px;
+        object-fit: contain; /* 保持图片比例，不会铺满 */
       }
     }
   }
