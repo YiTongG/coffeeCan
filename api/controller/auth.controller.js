@@ -62,14 +62,14 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET_KEY,
       { expiresIn: "7d" } // Token expires in 7 days
     );
-
+    console.log(token)
     // 4. Send the token in a cookie
     const { password: userPassword, ...userInfo } = user;
     res
       .cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-        sameSite: "strict", // Adjust based on your needs
+        sameSite: "None", // Adjust based on your needs
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       })
       .status(200)
@@ -87,7 +87,7 @@ export const logout = (req, res) => {
     .clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Ensure the same cookie options as when set
-      sameSite: "strict",
+      sameSite: "None",
     })
     .status(200)
     .json({ message: "Logout successful" });
