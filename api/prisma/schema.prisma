@@ -60,7 +60,7 @@ model Post {
 model PostDetail {
   id         String  @id @default(auto()) @map("_id") @db.ObjectId
   desc       String
-  unitPrice  Int
+  unitPrice  Float
   post       Post    @relation(fields: [postId], references: [id])
   postId     String  @unique @db.ObjectId
 }

@@ -13,7 +13,7 @@ function NewPostPage() {
   const [price, setPrice] = useState(0);
   const [weight, setWeight] = useState(0);
   const [unitPrice, setUnitPrice] = useState(0);
-  const [weightUnit, setWeightUnit] = useState("oz"); // 默认单位为 oz
+  const [weightUnit, setWeightUnit] = useState("oz"); //  oz
 
   const navigate = useNavigate();
 
@@ -48,7 +48,7 @@ function NewPostPage() {
       const res = await apiRequest.post("/posts", {
         postData: {
           title: inputs.title,
-          price: parseInt(inputs.price),
+          price: parseFloat(inputs.price),
           weight: parseInt(inputs.weight),
           address: inputs.address,
           city: inputs.city,

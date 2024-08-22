@@ -9,11 +9,11 @@ import userRoute from "./routes/user.route.js";
 const app = express();
 //parse client side url
 const corsOptions ={
-    origin:"http://localhost:5173", 
-    credentials:true,            //access-control-allow-credentials:true
+    origin: process.env.CLIENT_URL, 
+    credentials:true,             //access-control-allow-credentials:true
     optionSuccessStatus:200,
  }
- 
+  
 app.use(cors(corsOptions));
 
 app.use(express.json()); //json format

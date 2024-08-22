@@ -11,8 +11,8 @@ export const getPosts = async (req, res) => {
         type: query.type || undefined,
         roasting: query.roasting || undefined,
         price: {
-          gte: parseInt(query.minPrice) || undefined,
-          lte: parseInt(query.maxPrice) || undefined,
+          gte: parseFloat(query.minPrice) || undefined,
+          lte: parseFloat(query.maxPrice) || undefined,
         },
       },
     });
