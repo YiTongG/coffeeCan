@@ -1,69 +1,94 @@
 import bcrypt from "bcrypt";
 import prisma from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
-export const register = async(req,res) =>{
-  const {username,email,password} = req.body;
-  //hash password to store
-  const hashedPassword = await bcrypt.hash(password,10);
-  console.log(hashedPassword);
-  //prisma create using json 
-  const newUser = await prisma.user.create({
-    data:{
-      username,
-      email,
-      password: hashedPassword,
-    },
-  })
-  //hash the password
 
-  console.log(req.body);
-  res.status(201).json({messate:"User create successfully"});
-}
+export const register = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
 
-export const login = async(req,res) =>{
-  const{username,password} = req.body;
+    // Check if the username or email already exists
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ username }, { email }],
+      },
+    });
 
-try{ 
-  //1.check username
-  const user = await prisma.user.findUnique({
-    where:{username}
-  })
-  if(!user) return res.status(401).json({message:"Invaild credentials"});
-  //2.check password
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (existingUser) {
+      return res.status(409).json({ message: "Username or email already in use" });
+    }
 
-  if (!isPasswordValid)
-    return res.status(400).json({ message: "Invalid Credentials!" });
+    // Hash password before storing
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create a new user in the database
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        email,
+        password: hashedPassword,
+      },
+    });
 
+    console.log("New user created:", newUser);
+    res.status(201).json({ message: "User created successfully" });
+  } catch (err) {
+    console.error("Error during registration:", err);
+    res.status(500).json({ message: "Failed to register user" });
+  }
+};
 
-  const age = 1000 * 60 * 60 * 24 * 7; //one week
+export const login = async (req, res) => {
+  const { username, password } = req.body;
 
-  const token = jwt.sign(//header + payload + key(self+identify)
-    {
-      id: user.id,
-      isAdmin: false,
-    },
-    process.env.JWT_SECRET_KEY,
-    { expiresIn: age }
-  );
+  try {
+    // 1. Check if the username exists
+    const user = await prisma.user.findUnique({
+      where: { username },
+    });
 
-  const { password: userPassword, ...userInfo } = user;
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-  res
-  .cookie("token", token, { //save information identify user, auto login=>session hash crypt =>jwt client and server identify
-    httpOnly: true,
-    // secure:true,
-    maxAge: age,
-  })
-    .status(200)
-    .json(userInfo);
-    console.log(userInfo)
-} catch (err) {
-  console.log(err);
-  res.status(500).json({ message: "Failed to login!" });
-}
+    // 2. Verify the password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid)
+      return res.status(401).json({ message: "Invalid credentials" });
+
+    // 3. Generate a JWT token
+    const token = jwt.sign(
+      {
+        id: user.id,
+        isAdmin: false,
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "7d" } // Token expires in 7 days
+    );
+
+    // 4. Send the token in a cookie
+    const { password: userPassword, ...userInfo } = user;
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+        sameSite: "strict", // Adjust based on your needs
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      })
+      .status(200)
+      .json(userInfo);
+
+    console.log("User logged in:", userInfo);
+  } catch (err) {
+    console.error("Error during login:", err);
+    res.status(500).json({ message: "Failed to login!" });
+  }
 };
 
 export const logout = (req, res) => {
-res.clearCookie("token").status(200).json({ message: "Logout Successful" });
+  res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Ensure the same cookie options as when set
+      sameSite: "strict",
+    })
+    .status(200)
+    .json({ message: "Logout successful" });
 };
