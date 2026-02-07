@@ -1,0 +1,15 @@
+service: coffeecan-api
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1 
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+    COGNITO_USER_POOL_ID: your_pool_id
+    COGNITO_CLIENT_ID: your_client_id
+    JWT_SECRET_KEY: ${env:JWT_SECRET_KEY} 
+functions:
+  api:
+    handler: app.handler 
+    events:
+      - httpApi: '*' 

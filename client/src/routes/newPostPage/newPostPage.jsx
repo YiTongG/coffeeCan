@@ -22,7 +22,7 @@ function NewPostPage() {
       const response = await fetch(
         `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(
           address
-        )}&key=128f616559a142cb93e1fb1ed723cb80`
+        )}&key=32dfeeebf94d432c8a61010e219a1b5c`
       );
       const data = await response.json();
       if (data.results.length > 0) {
